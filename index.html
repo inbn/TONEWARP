@@ -16,12 +16,10 @@
 <body>
 
 	<div class="full-width-image" id="full-width-image">
-
 		<hgroup class="titles">
 			<h1>ToneWarp</h1>
 			<h2>A Generative Music Game using Three.js and the Web Audio API</h2>
 		</hgroup>
-
 	</div>
 
 	<div class="container content" id="container">
@@ -57,37 +55,37 @@
 			<div class="container options">
 				<div>
 					<label for="zonesnum">Number of Zones</label>
-						<select id="zonesnum" onchange="updateParameters()">
-							<option value="1">1 Zone</option>
-							<option value="5">5 Zones</option>
-							<option value="10" selected="selected">10 Zones</option>
-							<option value="15">15 Zones</option>
-							<option value="20">20 Zones</option>
-						</select>
+					<select id="zonesnum" onchange="updateParameters()">
+						<option value="1">1 Zone</option>
+						<option value="5">5 Zones</option>
+						<option value="10" selected="selected">10 Zones</option>
+						<option value="15">15 Zones</option>
+						<option value="20">20 Zones</option>
+					</select>
 				</div>
 
 				<div>
 					<label for="antialiasing">Anti-aliasing</label>
-						<select id="antialiasing" onchange="updateParameters()">
-							<option value='false' selected="selected">Off</option>
-							<option value='true'>On</option>
-						</select>
+					<select id="antialiasing" onchange="updateParameters()">
+						<option value='false' selected="selected">Off</option>
+						<option value='true'>On</option>
+					</select>
 				</div>
 
 				<div>
 					<label for="stats">Stats</label>
-						<select id="stats" onchange="updateParameters()">
-							<option value="true">On</option>
-							<option value="false" selected="selected">Off</option>
-						</select>
+					<select id="stats" onchange="updateParameters()">
+						<option value="true">On</option>
+						<option value="false" selected="selected">Off</option>
+					</select>
 				</div>
 
 				<div>
 					<label for="showtext">3D text</label>
-						<select id="showtext" onchange="updateParameters()">
-						 	<option value="true" selected="selected">On</option>
-						 	<option value="false">Off</option>
-						</select>
+					<select id="showtext" onchange="updateParameters()">
+					 	<option value="true" selected="selected">On</option>
+					 	<option value="false">Off</option>
+					</select>
 				</div>
 			</div>
 
@@ -100,33 +98,33 @@
 				<div class="container options">
 					<div>
 						<label for="BPM">Starting Tempo</label>
-							<select id="BPM" onchange="updateParameters()">
-								<option value="60">60 BPM</option>
-								<option value="80">80 BPM</option>
-								<option value="100" selected="selected">100 BPM</option>
-								<option value="120">120 BPM</option>
-								<option value="140">140 BPM</option>
-							</select>
+						<select id="BPM" onchange="updateParameters()">
+							<option value="60">60 BPM</option>
+							<option value="80">80 BPM</option>
+							<option value="100" selected="selected">100 BPM</option>
+							<option value="120">120 BPM</option>
+							<option value="140">140 BPM</option>
+						</select>
 					</div>
 
 					<div>
 						<label for="markovChain">Source File</label>
-							<select id="markovChain" onchange="setNotesArray()">
-								<option value="0">Satie - Gymnopedie No. 1</option>
-								<option value="1">Mozart - Symphony 40</option>
-								<option value="2">Strauss - The Blue Danube</option>
-								<option value="3" selected="selected">Grieg - Morning Mood</option>
-							</select>
+						<select id="markovChain" onchange="setNotesArray()">
+							<option value="0">Satie - Gymnopedie No. 1</option>
+							<option value="1">Mozart - Symphony 40</option>
+							<option value="2">Strauss - The Blue Danube</option>
+							<option value="3" selected="selected">Grieg - Morning Mood</option>
+						</select>
 					</div>
 
 					<div>
 						<label for="drumRhythm">Rhythm Type</label>
-							<select id="drumRhythm" onchange="updateParameters()">
-								<option value="0">Simple Kick</option>
-								<option value="1">Rock</option>
-								<option value="2">Funky Drummer</option>
-								<option value="3">Bossa Nova</option>
-							</select>
+						<select id="drumRhythm" onchange="updateParameters()">
+							<option value="0">Simple Kick</option>
+							<option value="1">Rock</option>
+							<option value="2">Funky Drummer</option>
+							<option value="3">Bossa Nova</option>
+						</select>
 					</div>
 				</div>
 			</div>
