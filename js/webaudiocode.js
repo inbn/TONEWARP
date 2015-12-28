@@ -49,7 +49,7 @@ var bPM = 100;
 var noteLength = 0.15;
 var noteArray = []; //array to be filled with note sequence
 var p = 0; //probability
-var rhythmPreset = 0;
+var rhythmPreset = 'simple kick';
 var arraySelect = 0;
 var secondOrderArray;
 var startTime; //time that the current bar was started
@@ -64,6 +64,8 @@ var drumRandomness = 0;
 //create drum buffers
 var source = null;
 var samplesLoaded = 0;
+
+var drumNames = ['kick', 'snare', 'hihat', 'clap', 'rimshot', 'cowbell'];
 
 var drumBuffers = {
 	kick: null,
@@ -115,55 +117,42 @@ var notePatterns = [
 	[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], //16
 ];
 
-var kickDrumArray = [
-	[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0], //Simple Kick
-	[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0], //Rock
-	[1,0,1,0,0,0,0,0,1,0,1,0,0,1,0,0], //Funky Drummer
-	[1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0], //Bossa Nova
-	[1,0,0,1,0,0,1,0,0,0,1,0,0,0,0,0],
-	[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]
-];
+var drumPatterns = {
+	'simple kick': {
+		'kick'    : [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+		'snare'   : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		'clap'    : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		'hihat'   : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		'rimshot' : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		'cowbell' : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+	},
+	'rock': {
+		'kick'    : [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+		'snare'   : [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+		'clap'    : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		'hihat'   : [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+		'rimshot' : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		'cowbell' : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+	},
+	'funky drummer': {
+		'kick'    : [1,0,1,0,0,0,0,0,1,0,1,0,0,1,0,0],
+		'snare'   : [0,0,0,0,1,0,0,1,0,1,0,1,1,0,0,0],
+		'clap'    : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		'hihat'   : [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+		'rimshot' : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		'cowbell' : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+	},
+	'bossa nova': {
+		'kick'    : [1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0],
+		'snare'   : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		'clap'    : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		'hihat'   : [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+		'rimshot' : [1,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0],
+		'cowbell' : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+	},
+}
 
-var snareArray = [
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], //Simple Kick
-	[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], //Rock
-	[0,0,0,0,1,0,0,1,0,1,0,1,1,0,0,0], //Funky Drummer
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], //Bossa Nova
-	[0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0],
-	[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]
-];
-
-var clapArray = [
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-	[0,0,1,0,1,0,0,0,0,0,0,0,1,0,0,0]
-];
-
-var hiHatArray = [
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], //Simple Kick
-	[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0], //Rock
-	[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], //Funky Drummer
-	[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0], //Bossa Nova
-	[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
-];
-
-var rimshotArray = [
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], //Simple Kick
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], //Rock
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], //Funky Drummer
-	[1,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0], //Bossa Nova
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-];
-
-var cowbellArray = [
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], //Simple Kick
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], //Rock
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], //Funky Drummer
-	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], //Bossa Nova
-	[1,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0]
-];
+var drumPatternNames = ['simple kick', 'rock', 'funky drummer', 'bossa nova'];
 
 function createAudioComponents() {
 
@@ -476,33 +465,22 @@ function playNextNote(duration, pitch, type) {
 function playRhythm(startTime) {
 	for (var i = 0; i < 16; i++) {
 		var r = Math.random() * 10;
-		var arrayChoice;
+		var rhythmChoice;
+
 		if (drumRandomness > r) {
-			//pick from a random array
-			arrayChoice = Math.floor(Math.random() * 5);
+			// Pick from a random pattern
+			rhythmChoice = drumPatternNames[Math.floor(Math.random() * drumPatternNames.length)];
 		}
 		else {
-			//pick from array based on rhythm preset
-			arrayChoice = rhythmPreset;
+			// Pick from the rhythm preset
+			rhythmChoice = rhythmPreset;
 		}
 
-		if (kickDrumArray[arrayChoice][i] == 1) {
-			playDrum('kick', startTime + i * noteLength);
-		}
-		if (snareArray[arrayChoice][i] == 1) {
-			playDrum('snare', startTime + i * noteLength);
-		}
-		if (hiHatArray[arrayChoice][i] == 1) {
-			playDrum('hihat', startTime + i * noteLength);
-		}
-		if (clapArray[arrayChoice][i] == 1) {
-			playDrum('clap', startTime + i * noteLength);
-		}
-		if (rimshotArray[arrayChoice][i] == 1) {
-			playDrum('rimshot', startTime + i * noteLength);
-		}
-		if (cowbellArray[arrayChoice][i] == 1) {
-			playDrum('cowbell', startTime + i * noteLength);
+		// For each drum, schedule a note if that item contains a note
+		for (var j = 0; j < drumNames.length; j++) {
+			if (drumPatterns[rhythmChoice][drumNames[j]][i] == 1) {
+				playDrum(drumNames[j], startTime + i * noteLength);
+			}
 		}
 
 		if (bassDurations[i] > 0) {
