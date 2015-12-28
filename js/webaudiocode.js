@@ -149,7 +149,7 @@ var drumPatterns = {
 		'hihat'   : [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
 		'rimshot' : [1,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0],
 		'cowbell' : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-	},
+	}
 }
 
 var drumPatternNames = ['simple kick', 'rock', 'funky drummer', 'bossa nova'];

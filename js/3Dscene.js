@@ -4,6 +4,9 @@ var geometry, material, mesh, light;
 //geometry variables
 var drumGeometry, cutoffGeometry, envelopeGeometry, noteDensityGeometry;
 var planeGeometry1, planeGeometry2, planeGeometry3;
+// lights
+var directionalLight;
+var ambientLight;
 //stats object
 var render_stats;
 var chunksRendered = 0;
@@ -129,7 +132,7 @@ function screenReleased(direction) {
 }
 
 //initialise the scene. Add the cameras, lights and import ship model
-var init = function () {
+function init() {
 
 	//hide menu, display game
 	document.getElementById('container').style.display='none';
@@ -181,11 +184,13 @@ var init = function () {
 	var envelopeMaterial = new THREE.MeshLambertMaterial({color: 0xE80C76, wireframe:false, emissive: 0xE80C76, shading: THREE.FlatShading, transparent: true, opacity: 0.6 });
 
 	//add lights to the scene
-	var light = THREE.AmbientLight( 0xffffff );
-	var directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+
+	directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
 	directionalLight.position.set( 0, 150, 0 );
-	scene.add( light );
     scene.add( directionalLight );
+
+    ambientLight = new THREE.AmbientLight(shipColour[4]);
+    scene.add( ambientLight );
 
 	//ADD DRUM CHANGE OBJECT TO SCENE
 	//as only one will ever be visible a time we only need to create one
@@ -325,9 +330,10 @@ function newChunk(chunkNo) {
 		}, 200);
 	}
 
-	//when entering new zone, change colours of ship, renderer background and fog
+	//when entering new zone, change colours of ship, ambient lighting, renderer background and fog
 	if (chunkNo % 10 == 3 && (numberOfZones * 10 + 4)) {
 		ship.material.emissive.setHex(shipColour[zoneNo%5]);
+		ambientLight.color.setHex(shipColour[zoneNo%5]);
 		renderer.setClearColor(backgroundColour[zoneNo%5], 1 );
 		scene.fog.color.setHex(backgroundColour[zoneNo%5]);
 	}
@@ -477,12 +483,7 @@ var animate = function () {
 		drumMesh.position.z - 150 < ship.position.z &&
 		ship.position.z < drumMesh.position.z + 150)
 	{
-		if (rhythmPreset < 4) {
-			rhythmPreset++;
-		}
-		else {
-			rhythmPreset = 0;
-		}
+		rhythmPreset = drumPatternNames[Math.floor(Math.random() * drumPatternNames.length)];
 		//change drumRandomness
 		drumRandomness += Math.floor(Math.random() * 5) -1;
 		drumMesh.position.x = 10000;
