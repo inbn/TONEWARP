@@ -63,14 +63,25 @@ var drumRandomness = 0;
 
 //create drum buffers
 var source = null;
-var kickDrumBuffer = null;
-var snareDrumBuffer = null;
-var hiHatBuffer = null;
-var clapBuffer = null;
-var rimshotBuffer = null;
-var cowbellBuffer = null;
 var samplesLoaded = 0;
-var kickDrumGain, snareDrumGain, hiHatGain, clapGain, rimshotGain, cowbellGain;
+
+var drumBuffers = {
+	kick: null,
+	snare: null,
+	hihat: null,
+	clap: null,
+	rimshot: null,
+	cowbell: null
+}
+
+var drumGainNodes = {
+	kick: null,
+	snare: null,
+	hihat: null,
+	clap: null,
+	rimshot: null,
+	cowbell: null
+}
 
 //create tuna effects
 var tuna = new Tuna(context);
@@ -187,89 +198,34 @@ function createAudioComponents() {
 		filters[i] = context.createBiquadFilter();
 		filters[i].type = "lowpass";
 		//connect everything together
-		filters[i].connect(gainNodes[i]); 
-		gainNodes[i].connect(chorus.input); 
+		filters[i].connect(gainNodes[i]);
+		gainNodes[i].connect(chorus.input);
 	}
 
-	//create gain nodes
+	// create gain nodes
+	for (var key in drumGainNodes) {
+		if (drumGainNodes.hasOwnProperty(key)) {
+			var gainNode = context.createGain();
+				gainNode.gain.value = 0.7;
+				gainNode.connect(compressor.input);
 
-	kickDrumGain = context.createGain();
-	kickDrumGain.gain.value = 0.7;
-	kickDrumGain.connect(compressor.input);
-
-	snareDrumGain = context.createGain();
-	snareDrumGain.gain.value = 0.8;
-	snareDrumGain.connect(compressor.input);
-
-	hiHatGain = context.createGain();
-	hiHatGain.gain.value = 0.4;
-	hiHatGain.connect(context.destination);
-
-	clapGain = context.createGain();
-	clapGain.gain.value = 0.5;
-	clapGain.connect(context.destination);
-
-	rimshotGain = context.createGain();
-	rimshotGain.gain.value = 0.7;
-	rimshotGain.connect(context.destination);
-
-	cowbellGain = context.createGain();
-	cowbellGain.gain.value = 0.4;
-	cowbellGain.connect(context.destination);
+			drumGainNodes[key] = gainNode;
+		}
+	}
 }
 
-//play single note for purposes of testing sound
+// play single note for purposes of testing sound
 function playNote(pitch, duration) {
 	now = context.currentTime;
 	playSynth(pitch, now, duration, 0.3, oscOneType, oscTwoType, oscOneMultiplier, oscTwoMultiplier, filterCutoff, filterQ, filterAttack, filterDecay, filterSustain, filterRelease, ampAttack, ampDecay, ampSustain, ampRelease);
 }
 
-//functions to play back drum samples
-function playKick(time) {
+// play drum sample at specified time
+function playDrum(drum, time) {
 	source = context.createBufferSource();
-	source.buffer = kickDrumBuffer;
+	source.buffer = drumBuffers[drum];
 	source.loop = false;
-	source.connect(kickDrumGain);
-	source.start(time);
-}
-
-function playSnare(time) {
-	source = context.createBufferSource();
-	source.buffer = snareDrumBuffer;
-	source.loop = false;
-	source.connect(snareDrumGain);
-	source.start(time);
-}
-
-function playHiHat(time) {
-	source = context.createBufferSource();
-	source.buffer = hiHatBuffer;
-	source.loop = false;
-	source.connect(hiHatGain);
-	source.start(time);
-}
-
-function playClap(time) {
-	source = context.createBufferSource();
-	source.buffer = clapBuffer;
-	source.loop = false;
-	source.connect(clapGain);
-	source.start(time);
-}
-
-function playRimshot(time) {
-	source = context.createBufferSource();
-	source.buffer = rimshotBuffer;
-	source.loop = false;
-	source.connect(rimshotGain);
-	source.start(time);
-}
-
-function playCowbell(time) {
-	source = context.createBufferSource();
-	source.buffer = cowbellBuffer;
-	source.loop = false;
-	source.connect(cowbellGain);
+	source.connect(drumGainNodes[drum]);
 	source.start(time);
 }
 
@@ -285,7 +241,7 @@ function generateNoteObjectPattern() {
 			noteObjectPattern = notePatterns[noteDensity];
 		}
 	}
-		
+
 	//extend note durations
 	for (var k = 0; k < 16; k++) {
 		//If there's a note
@@ -307,26 +263,7 @@ function generateNoteObjectPattern() {
 function initSound(arrayBuffer, sampleType) {
 	context.decodeAudioData(arrayBuffer, function(buffer) {
 		//audioBuffer is global to reuse the decoded audio later
-		switch (sampleType) {
-			case "kick":
-				kickDrumBuffer = buffer;
-				break;
-			case "snare":
-				snareDrumBuffer = buffer;
-				break;
-			case "hihat":
-				hiHatBuffer = buffer;
-				break;
-			case "clap":
-				clapBuffer = buffer;
-				break;
-			case "rimshot":
-				rimshotBuffer = buffer;
-				break;
-			case "cowbell":
-				cowbellBuffer = buffer;
-				break;
-		}
+		drumBuffers[sampleType] = buffer;
 		samplesLoaded++;
 		return;
 	}, function(e) {
@@ -351,7 +288,7 @@ The general purpose synthesiser is used for all synthesised sounds and takes 18 
 pitch is the fundamental pitch for the synth, time the start time and duration: the combined length of Attack, Decay and Sustain portions of the envelopes
 ampGain is the gain for the gain node. osc1wf and osc2wf set the waveforms for each oscillator. osc1m and osc2m set the octave of each oscillator
 cutoff and q are used to shape the filter response
-fA, fD, fS, fR, aA, aD, aS, aR are the Attack, Decay, Sustain and Release values for each envelope 
+fA, fD, fS, fR, aA, aD, aS, aR are the Attack, Decay, Sustain and Release values for each envelope
 */
 function playSynth(pitch, time, duration, ampGain, osc1wf, osc2wf, osc1m, osc2m, cutoff, q, fA, fD, fS, fR, aA, aD, aS, aR) {
 	var filterDone = false;
@@ -368,7 +305,7 @@ function playSynth(pitch, time, duration, ampGain, osc1wf, osc2wf, osc1m, osc2m,
 
 	oscillators1[noteNumber].connect(filters[noteNumber]);
 	oscillators2[noteNumber].connect(filters[noteNumber]);
-	
+
 	oscillators1[noteNumber].start(time);
 	oscillators2[noteNumber].start(time);
 
@@ -401,7 +338,7 @@ function playSynth(pitch, time, duration, ampGain, osc1wf, osc2wf, osc1m, osc2m,
 	//Release
 	if (filterDone === false) {
 		filters[noteNumber].frequency.linearRampToValueAtTime(0, time + (duration + fR));
-	} 
+	}
 
 	//AMPLITUDE ENVELOPE
 	gainNodes[noteNumber].gain.setValueAtTime(gainNodes[noteNumber].gain.value, time);
@@ -446,7 +383,7 @@ function playSynth(pitch, time, duration, ampGain, osc1wf, osc2wf, osc1m, osc2m,
 	}
 	else {
 		noteNumber = 0;
-	}	
+	}
 }
 
 function setNotesArray() {
@@ -487,9 +424,9 @@ function generateMelody() {
 		noteArray.push(nextPitch);
 		//move current pitch and next pitch to previous pitch and current pitch respectively
 		prevPitch = currentPitch;
-		currentPitch = nextPitch;	
+		currentPitch = nextPitch;
 	}
-	console.log("Notes generated");	
+	console.log("Notes generated");
 }
 
 function generateBassLine() {
@@ -516,7 +453,7 @@ function playNextNote(duration, pitch, type) {
 		if (semiquaverStart - (0.5 * noteLength) < collisionTime && collisionTime < semiquaverStart) {
 			noteStartTime = semiquaverStart;
 			break;
-		}		
+		}
 		else if (semiquaverStart < collisionTime && collisionTime < (semiquaverStart + 0.1 * noteLength)) {
 			noteStartTime = context.currentTime;
 		}
@@ -550,34 +487,34 @@ function playRhythm(startTime) {
 		}
 
 		if (kickDrumArray[arrayChoice][i] == 1) {
-			playKick(startTime + i * noteLength);
+			playDrum('kick', startTime + i * noteLength);
 		}
 		if (snareArray[arrayChoice][i] == 1) {
-			playSnare(startTime + i * noteLength);	
+			playDrum('snare', startTime + i * noteLength);
 		}
 		if (hiHatArray[arrayChoice][i] == 1) {
-			playHiHat(startTime + i * noteLength);
+			playDrum('hihat', startTime + i * noteLength);
 		}
 		if (clapArray[arrayChoice][i] == 1) {
-			playClap(startTime + i * noteLength);
+			playDrum('clap', startTime + i * noteLength);
 		}
 		if (rimshotArray[arrayChoice][i] == 1) {
-			playRimshot(startTime + i * noteLength);
-		}		
+			playDrum('rimshot', startTime + i * noteLength);
+		}
 		if (cowbellArray[arrayChoice][i] == 1) {
-			playCowbell(startTime + i * noteLength);
+			playDrum('cowbell', startTime + i * noteLength);
 		}
 
 		if (bassDurations[i] > 0) {
 			playSynth(bassPitches[i] * 0.25, startTime + i * noteLength , noteLength, 0.25, bassOscOneType, bassOscTwoType, bassOscOneMultiplier, bassOscTwoMultiplier, bassFilterCutoff, bassFilterQ, bassFilterAttack, bassFilterDecay, bassFilterSustain, bassFilterRelease, bassAmpAttack, bassAmpDecay, bassAmpSustain, bassAmpRelease);
 		}
-	}	
+	}
 }
 
 //generate new note from markov chain
 function makeNotesSecondOrder() {
 	//generate a random float between 0 and 1
-	var rand = Math.random(); 
+	var rand = Math.random();
 	for (var x = 0; x < (secondOrderArray.length - 1); x++) {
 		if (prevPitch == secondOrderArray[(x+1)][0] && currentPitch == secondOrderArray[(x+1)][1]) {
 			for (var y = 0; y < 100; y++) {
@@ -596,7 +533,7 @@ function makeNotesSecondOrder() {
 
 //connect NexusUI Elements
 nx.onload = function() {
-	nx.sendsTo("js");  
+	nx.sendsTo("js");
 	nx.colorize("#4400FF"); // sets accent
 
 	//assign variables
@@ -644,35 +581,35 @@ nx.onload = function() {
   	};
   	filterCutoffControl.response = function(data) {
     	filterCutoff = data * 5000;
- 	};	
+ 	};
  	filterQControl.response = function(data) {
     	filterQ = data * 50;
  	};
   	filterAttackControl.response = function(data) {
     	filterAttack = data;
- 	};	
+ 	};
  	filterDecayControl.response = function(data) {
     	filterDecay = data;
- 	};	
+ 	};
  	filterSustainControl.response = function(data) {
     	filterSustain = data;
- 	};	
+ 	};
  	filterReleaseControl.response = function(data) {
     	filterRelease = data;
- 	};	
+ 	};
  	ampAttackControl.response = function(data) {
     	ampAttack = data;
- 	};	
+ 	};
  	ampDecayControl.response = function(data) {
     	ampDecay = data;
- 	};	
+ 	};
  	ampSustainControl.response = function(data) {
     	ampSustain = data;
- 	};	
+ 	};
  	ampReleaseControl.response = function(data) {
     	ampRelease = data;
- 	};	
- 	
+ 	};
+
  	//hide options div after NexusUI objects loaded
  	document.getElementById('gameoptions').style.display="none";
 };
