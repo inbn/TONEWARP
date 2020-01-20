@@ -1,0 +1,230 @@
+<!doctype html>
+<html id="tonewarp-html">
+
+<head>
+    <meta charset="utf-8">
+    <title>TONEWARP | A Generative Music Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+    <!-- <script src="//code.jquery.com/jquery-1.11.0.min.js"></script> -->
+    <!-- <script type="text/javascript" src="js/nexusUI.js"></script> -->
+
+    <link href='http://fonts.googleapis.com/css?family=Abel|Inconsolata' rel='stylesheet' type='text/css'>
+    <link href="css/tonewarp.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <div class="full-width-image" id="full-width-image">
+        <hgroup class="titles">
+            <h1>ToneWarp</h1>
+            <h2>A Generative Music Game using Three.js and the Web Audio API</h2>
+        </hgroup>
+    </div>
+
+    <div class="container content" id="container">
+        <div id="browsertext"></div>
+        <div id="main-text">
+            <h2>How To Play</h2>
+            <p>In Tonewarp, the goal is to create unique musical compositions by collecting objects with your ship. There are three main object types:</p>
+            <ol>
+                <li>Note Objects (blue): These add musical notes to the song as you collide with them</li>
+                <li>Chord Objects (orange): These add chords to the song as you collide with them</li>
+                <li>Tonewarp Objects: These occur only in the last 2 bars of a zone and will change the overall sound of the song</li>
+            </ol>
+            <p>The game is broken up into zones&mdash;each zone consists of ten bars of music. As you progress through the game, you will be able to change certain characteristics of the music by collecting Tonewarp objects.</p>
+            <p>To control the movement of the ship, use the arrow keys on your keyboard. Up and Down keys control the height of the ship. Left and Right keys control the lane.</p>
+
+            <p>Press 'Play The Game' to begin. To view additional options click 'Show Options'. To find out more about the game and how it works, check out <a href="http://iainbean.com/blog/2014/08/what-is-tonewarp/">this blog post</a>.</p>
+        </div>
+
+        <div id="playthegame">
+            <span>Play The Game</span>
+        </div>
+
+        <div id="showmore">
+            <span>Show Options</span>
+        </div>
+
+        <div id="gameoptions">
+            <h2>Game Options</h2>
+
+            <div class="container options">
+                <div>
+                    <label for="zonesnum">Number of Zones</label>
+                    <select id="zonesnum" onchange="updateParameters()">
+                        <option value="1">1 Zone</option>
+                        <option value="5">5 Zones</option>
+                        <option value="10" selected="selected">10 Zones</option>
+                        <option value="15">15 Zones</option>
+                        <option value="20">20 Zones</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="antialiasing">Anti-aliasing</label>
+                    <select id="antialiasing" onchange="updateParameters()">
+                        <option value='false' selected="selected">Off</option>
+                        <option value='true'>On</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="stats">Stats</label>
+                    <select id="stats" onchange="updateParameters()">
+                        <option value="true">On</option>
+                        <option value="false" selected="selected">Off</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="showtext">3D text</label>
+                    <select id="showtext" onchange="updateParameters()">
+                        <option value="true" selected="selected">On</option>
+                        <option value="false">Off</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="sequencer">
+
+                <h2>Sequencer</h2>
+
+                <p>This section allows you to choose parameters relating to the musical phrases generated. You can change which composition acts as the 'inspiration' for the game's music, by choosing a different piece from the 'Source File' list: New sequences will be generated from the chosen source file using <a href="http://en.wikipedia.org/wiki/Markov_chain">Markov chains</a>. To change the starting drum pattern, select a different 'Rhythm Type'.</p>
+
+                <div class="container options">
+                    <div>
+                        <label for="BPM">Starting Tempo</label>
+                        <select id="BPM" onchange="updateParameters()">
+                            <option value="60">60 BPM</option>
+                            <option value="80">80 BPM</option>
+                            <option value="100" selected="selected">100 BPM</option>
+                            <option value="120">120 BPM</option>
+                            <option value="140">140 BPM</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="markovChain">Source File</label>
+                        <select id="markovChain" onchange="setNotesArray()">
+                            <option value="0">Satie - Gymnopedie No. 1</option>
+                            <option value="1">Mozart - Symphony 40</option>
+                            <option value="2">Strauss - The Blue Danube</option>
+                            <option value="3" selected="selected">Grieg - Morning Mood</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="drumRhythm">Rhythm Type</label>
+                        <select id="drumRhythm" onchange="updateParameters()">
+                            <option value="simple kick">Simple Kick</option>
+                            <option value="rock">Rock</option>
+                            <option value="funky drummer">Funky Drummer</option>
+                            <option value="bossa nova">Bossa Nova</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="synthesiser">
+                <h2>Synthesiser</h2>
+                <p>To try out the synth sound, press 'Play Single Note'. Adjust the Pitch slider and Note Duration value to hear different pitches and note lengths.</p>
+                <div class="container options">
+                    <div><canvas nx="button" width="80px" height="80px"></canvas><span>Play Single Note</span></div>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Pitch</span></div>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Note Duration</span></div>
+                </div>
+                <div class="container options">
+                    <h3>Oscillators</h3>
+                    <div>
+                        <label for="oscOneWaveform">Osc 1 Waveform</label>
+                        <select id="oscOneWaveform" onchange="updateParameters()">
+                            <option value="sine" selected="selected">sine</option>
+                            <option value="square">square</option>
+                            <option value="sawtooth">sawtooth</option>
+                            <option value="triangle">triangle</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="oscillator1Transpose">Osc 1 Transpose</label>
+                        <select id="oscillator1Transpose" onchange="updateParameters()">
+                            <option value="0.25">- 2 octaves</option>
+                            <option value="0.5" selected="selected">- 1 octave</option>
+                            <option value="1">no change</option>
+                            <option value="2">+ 1 octave</option>
+                            <option value="4">+ 2 octaves</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="oscTwoWaveform">Osc 2 Waveform</label>
+                        <select id="oscTwoWaveform" onchange="updateParameters()">
+                            <option value="sine">sine</option>
+                            <option value="square">square</option>
+                            <option value="sawtooth" selected="selected">sawtooth</option>
+                            <option value="triangle">triangle</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="oscillator2Transpose">Osc 2 Transpose</label>
+                        <select id="oscillator2Transpose" onchange="updateParameters()">
+                            <option value="0.25">- 2 octaves</option>
+                            <option value="0.5" selected="selected">- 1 octave</option>
+                            <option value="1">no change</option>
+                            <option value="2">+ 1 octave</option>
+                            <option value="4">+ 2 octaves</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="container options">
+                    <h3>Filter</h3>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Cutoff Frequency</span></div>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Filter Q</span></div>
+                </div>
+                <div class="container options">
+                    <h3>Filter Envelope</h3>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Attack</span></div>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Decay</span></div>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Sustain</span></div>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Release</span></div>
+                </div>
+                <div class="container options">
+                    <h3>Amplitude Envelope</h3>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Attack</span></div>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Decay</span></div>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Sustain</span></div>
+                    <div><canvas nx="dial" width="80px" height="80px"></canvas><span>Release</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="score">Score:0</div>
+    <div id="status"></div>
+    <div id="questionnaire" onmousedown="questionnaire()">Take the Questionnaire</div>
+    <div id="viewport"></div>
+
+    <div id="touchup" class="touchcontrol" ontouchstart="screenPressed('Up')" ontouchend="screenReleased('Up')"></div>
+
+    <div id="touchleft" class="touchcontrol" ontouchstart="screenPressed('Left')" ontouchend="screenReleased('Left')">
+    </div>
+
+    <div id="touchright" class="touchcontrol" ontouchstart="screenPressed('Right')"
+        ontouchend="screenReleased('Right')"></div>
+
+    <div id="touchdown" class="touchcontrol" ontouchstart="screenPressed('Down')" ontouchend="screenReleased('Down')">
+    </div>
+
+    <div id="completion">
+        <h2>Game Complete</h2>
+        <div id="finalscore">
+            Final Score: 0
+        </div>
+        <div id="finaltempo">
+        </div>
+    </div>
+    <!--
+	<script src="https://ajax.googleapis.com/ajax/libs/threejs/r69/three.min.js"></script>
+    <script type="text/javascript" src="js/roboto_slab_regular.typeface.js"></script> -->
+
+    <script type="text/javascript" src="js/index.js"></script>
+</body>
+</html>

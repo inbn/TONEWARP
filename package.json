@@ -1,0 +1,28 @@
+{
+  "name": "tonewarp",
+  "version": "1.0.0",
+  "description": "Tonewarp is a Generative Music Game using Three.js and the Web Audio API, created for my Music Informatics BSc course at the University of Sussex.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel src/index.html",
+    "build": "parcel build src/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/inbn/TONEWARP.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/inbn/TONEWARP/issues"
+  },
+  "homepage": "https://github.com/inbn/TONEWARP#readme",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  },
+  "dependencies": {
+    "three": "^0.110.0",
+    "tunajs": "^1.0.11"
+  }
+}

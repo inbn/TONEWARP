@@ -16,23 +16,6 @@
 
 	"scale" : 1.000000,
 
-	"materials" : [	{
-		"DbgColor" : 15658734,
-		"DbgIndex" : 0,
-		"DbgName" : "wire_225087143",
-		"blending" : "NormalBlending",
-		"colorAmbient" : [0.705919991521835, 0.2729599993371963, 0.448640019426346],
-		"colorDiffuse" : [0.705919991521835, 0.2729599993371963, 0.448640019426346],
-		"colorSpecular" : [0.3499999940395355, 0.3499999940395355, 0.3499999940395355],
-		"depthTest" : true,
-		"depthWrite" : true,
-		"shading" : "Lambert",
-		"specularCoef" : 16,
-		"transparency" : 1.0,
-		"transparent" : true,
-		"vertexColors" : false
-	}],
-
 	"vertices" : [-16.0577,6.8475,14.0637,-2.128,6.8482,-21.7506,-2.1274,-0.0130017,14.0635,11.8016,6.845,14.0637,-2.1287,13.7056,14.0639,-2.128,6.8472,14.066],
 
 	"morphTargets" : [],
